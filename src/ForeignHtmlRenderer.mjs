@@ -1,1 +1,1 @@
-export * from './Renderer.mjs'
+export * from './ImageRenderer.mjs'
