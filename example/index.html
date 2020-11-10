@@ -5,7 +5,7 @@
 
     <head>
         <link rel="stylesheet" type="text/css" href="styles.css" /> 
-        <script src="../dist/ForeignHtmlRenderer.js" type="text/javascript"></script>
+        <script src="../dist/foreign-html-renderer.min.js" type="text/javascript"></script>
     </head>
 
     <body>
@@ -33,7 +33,7 @@
 
                     </div>
                 `,
-                1024,
+                500,
                 768)
                 .then((base64png) => {
                     document.getElementById(`snapshotContainer`).innerHTML = `<img src="${base64png}" />`;
