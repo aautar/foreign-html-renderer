@@ -24,10 +24,6 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
         
       - run: 
-          name: Running tests
-          command: npm test
-
-      - run: 
           name: Installing rollup
           command: sudo npm install --global rollup
       
