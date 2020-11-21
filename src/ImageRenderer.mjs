@@ -170,6 +170,13 @@ const ImageRenderer = function(styleSheets) {
             let urlsFoundInCss = [];
 
             for (let i=0; i<styleSheets.length; i++) {
+                try {
+                    const canAccessRules = styleSheets[i].cssRules;
+                } catch(err) {
+                    console.warn("Inaccessible stylesheet: " + styleSheets[i].href);
+                    continue;
+                }
+
                 for(let j=0; j<styleSheets[i].cssRules.length; j++) {
                     const cssRuleStr = styleSheets[i].cssRules[j].cssText;
                     urlsFoundInCss.push( ...getUrlsFromCssString(cssRuleStr) );
