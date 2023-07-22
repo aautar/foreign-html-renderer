@@ -5,8 +5,8 @@
     font-style: normal;
 }
 
-* { margin:0; padding: 0; box-sizing: border-box; }
-p { font-family:"BebasNeue"; color:#00f; }
+* { margin:0; padding: 0; box-sizing: border-box; font-size: 100%; font: inherit; vertical-align: baseline; }
+p { font-family:"BebasNeue"; color:#00f; line-height: 24px; }
 
 .bg-image-pattern { 
     background:url(test-bigfoot.svg) center center repeat-x;
