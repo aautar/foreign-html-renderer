@@ -5,7 +5,7 @@
     font-style: normal;
 }
 
-* { margin:0; padding: 0; box-sizing: border-box; font-size: 100%; font: inherit; vertical-align: baseline; }
+* { margin:0; padding: 0; box-sizing: border-box; font-size: 100%; font: inherit; vertical-align: baseline; overflow:hidden; }
 p { font-family:"BebasNeue"; color:#00f; line-height: 24px; }
 
 .bg-image-pattern { 
