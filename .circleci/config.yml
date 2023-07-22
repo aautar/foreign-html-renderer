@@ -27,6 +27,10 @@ jobs:
           name: Running build (creating /dist files with rollup)
           command: npm run build
 
+      - run: 
+          name: Running browser tests
+          command: npm test
+
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
