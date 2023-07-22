@@ -16,7 +16,7 @@ jobs:
 
       - run: 
           name: Running npm install
-          command: npm install
+          command: npm install --include dev
 
       - save_cache:
           paths:
