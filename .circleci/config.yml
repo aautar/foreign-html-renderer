@@ -16,7 +16,11 @@ jobs:
 
       - run: 
           name: Running npm install
-          command: npm install --include dev
+          command: npm install
+
+      - run: 
+          name: Ensure Chrome is downloaded
+          command: node node_modules/puppeteer/install.js
 
       - save_cache:
           paths:
