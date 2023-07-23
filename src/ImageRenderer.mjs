@@ -9,12 +9,12 @@ const ImageRenderer = function(styleSheets) {
 
     /**
      * 
-     * @param {String} binStr 
+     * @param {Blob} blob 
      */
-    const binaryStringToBase64 = function(binStr) {
+    const blobToBase64 = function(blob) {
         return new Promise(function(resolve) {
             const reader = new FileReader();
-            reader.readAsDataURL(binStr); 
+            reader.readAsDataURL(blob); 
             reader.onloadend = function() {
                 resolve(reader.result);
             }  
@@ -32,14 +32,25 @@ const ImageRenderer = function(styleSheets) {
                 url, 
                 new Map(), 
                 async (parsedResponse, xhr) => {
-                    const resBase64 = await binaryStringToBase64(parsedResponse);
-                    
-                    resolve(
-                        {
-                            "resourceUrl": url,
-                            "resourceBase64": resBase64
-                        }
-                    );
+                    //
+                    // Note: do not use the parsed response, we just want to work with the Blob
+                    //
+                    if(xhr.response.constructor.name !== 'Blob') {
+                        resolve(
+                            {
+                                "resourceUrl": url,
+                                "resourceBase64": null,
+                            }
+                        );
+                    } else {
+                        const resBase64 = await blobToBase64(xhr.response);
+                        resolve(
+                            {
+                                "resourceUrl": url,
+                                "resourceBase64": resBase64,
+                            }
+                        );
+                    }
                 },
                 () => {
                     reject('xhr request failed');
