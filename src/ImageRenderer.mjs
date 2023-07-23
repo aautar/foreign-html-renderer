@@ -230,10 +230,14 @@ const ImageRenderer = function(styleSheets) {
                     </g>
                 </svg>`;
 
-            // convert SVG to data-uri
-            const dataUri = `data:image/svg+xml;base64,${window.btoa(svg)}`;
 
-            resolve(dataUri);                    
+            // encode SVG string as Uint8Array and put into Blob
+            const svgBlob = new Blob([new TextEncoder().encode(svg)], { type: "image/svg+xml;base64" });
+
+            // Convert SVG Blob to Base64 string
+            const svgBase64DataURI = await blobToBase64(svgBlob);
+
+            resolve(svgBase64DataURI);                    
         });
     };
 
