@@ -21,16 +21,19 @@ var ForeignHtmlRenderer = (function (exports) {
      * @returns {String|Object|Blob}
      */
     PaperPlane.parseXHRResponseData = function(_respBlob, _onParseComplete) {
+        if(typeof _respBlob === 'undefined' || _respBlob === null || _respBlob.size === 0) {
+            _onParseComplete(_respBlob);
+            return;
+        }
+
         if(_respBlob.type === PaperPlane.ContentType.APPLICATION_JSON) {
             var parsedResponseBody = {};
             
-            try {
-                PaperPlane.convertBlobToString(_respBlob, function(_blobTextual) {
-                    parsedResponseBody = JSON.parse(_blobTextual);
-                });
-            } catch (err) { }
+            PaperPlane.convertBlobToString(_respBlob, function(_blobTextual) {
+                parsedResponseBody = JSON.parse(_blobTextual);
+                _onParseComplete(parsedResponseBody);
+            });
 
-            _onParseComplete(parsedResponseBody);
         } else if(_respBlob.type.split('/')[0] === 'text') {
             PaperPlane.convertBlobToString(_respBlob, function(_blobTextual) {
                 _onParseComplete(_blobTextual);
@@ -84,6 +87,19 @@ var ForeignHtmlRenderer = (function (exports) {
 
 
     /**
+     * @param {Map} _params
+     * @returns {String}
+     */
+     PaperPlane.makeUrlQueryString = function(_params) {
+        const queryParts = [];
+        for (let [key, value] of _params) {
+            queryParts.push(`${key}=${encodeURIComponent(value)}`);
+        }
+
+        return "?" + queryParts.join("&");
+    };
+
+    /**
      * @callback PaperPlane~responseCallback
      * @param {String|Object} responseData
      * @param {XMLHttpRequest} xhr
@@ -106,7 +122,8 @@ var ForeignHtmlRenderer = (function (exports) {
         _requestData,
         _onSuccess,
         _onError,
-        _onComplete
+        _onComplete,
+        _clientSettings
     ) {
         const httpHeaders = _requestData.headers;
         _onSuccess = _onSuccess || (() => {});
@@ -131,7 +148,12 @@ var ForeignHtmlRenderer = (function (exports) {
         }
 
         xhr.responseType = 'blob';
-        xhr.timeout = 30000;
+
+        if(_clientSettings && _clientSettings.timeout) {
+            xhr.timeout = _clientSettings.timeout;
+        } else {
+            xhr.timeout = 30000;
+        }
 
         xhr.onload = function() {
             if(xhr.status >= 400) {
@@ -480,6 +502,13 @@ var ForeignHtmlRenderer = (function (exports) {
                 let urlsFoundInCss = [];
 
                 for (let i=0; i<styleSheets.length; i++) {
+                    try {
+                        const canAccessRules = styleSheets[i].cssRules;
+                    } catch(err) {
+                        console.warn("Inaccessible stylesheet: " + styleSheets[i].href);
+                        continue;
+                    }
+
                     for(let j=0; j<styleSheets[i].cssRules.length; j++) {
                         const cssRuleStr = styleSheets[i].cssRules[j].cssText;
                         urlsFoundInCss.push( ...getUrlsFromCssString(cssRuleStr) );
@@ -586,6 +615,8 @@ var ForeignHtmlRenderer = (function (exports) {
     };
 
     exports.ImageRenderer = ImageRenderer;
+
+    Object.defineProperty(exports, '__esModule', { value: true });
 
     return exports;
 

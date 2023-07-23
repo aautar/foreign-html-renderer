@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/aautar/foreign-html-renderer#readme",
   "dependencies": {
-    "paper-plane": "^4.0.0"
+    "paper-plane": "^5.1.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.22.9",
