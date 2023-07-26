@@ -6,6 +6,8 @@ import { PaperPlane } from 'paper-plane'
  */
 const ImageRenderer = function(styleSheets) {
     const self = this;
+    let cssStylesFromStyleSheets = '';
+    let extractFromStyleSheetsPromise = null;
 
     /**
      * 
@@ -159,6 +161,34 @@ const ImageRenderer = function(styleSheets) {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
     };
 
+    const extractStylesFromStyleSheets = async function() {
+        let cssStyles = "";
+        const urlsFoundInCss = [];
+
+        for (let i=0; i<styleSheets.length; i++) {
+            try {
+                const canAccessRules = styleSheets[i].cssRules;
+            } catch(err) {
+                console.warn("Inaccessible stylesheet: " + styleSheets[i].href);
+                continue;
+            }
+
+            for(let j=0; j<styleSheets[i].cssRules.length; j++) {
+                const cssRuleStr = styleSheets[i].cssRules[j].cssText;
+                urlsFoundInCss.push( ...getUrlsFromCssString(cssRuleStr) );
+                cssStyles += cssRuleStr;
+            }
+        }
+
+        const fetchedResourcesFromStylesheets = await getMultipleResourcesAsBase64(urlsFoundInCss);
+        for(let i=0; i<fetchedResourcesFromStylesheets.length; i++) {
+            const r = fetchedResourcesFromStylesheets[i];
+            cssStyles = cssStyles.replace(new RegExp(escapeRegExp(r.resourceUrl),"g"), r.resourceBase64);
+        }
+
+        cssStylesFromStyleSheets = cssStyles;
+    };
+
     /**
      * 
      * @param {String} contentHtml 
@@ -176,30 +206,9 @@ const ImageRenderer = function(styleSheets) {
             *  2. Platform won't wait for external assets to load (fonts, images, etc.)
             */ 
 
-            // copy styles
-            let cssStyles = "";
-            let urlsFoundInCss = [];
+            await extractFromStyleSheetsPromise;
 
-            for (let i=0; i<styleSheets.length; i++) {
-                try {
-                    const canAccessRules = styleSheets[i].cssRules;
-                } catch(err) {
-                    console.warn("Inaccessible stylesheet: " + styleSheets[i].href);
-                    continue;
-                }
-
-                for(let j=0; j<styleSheets[i].cssRules.length; j++) {
-                    const cssRuleStr = styleSheets[i].cssRules[j].cssText;
-                    urlsFoundInCss.push( ...getUrlsFromCssString(cssRuleStr) );
-                    cssStyles += cssRuleStr;
-                }
-            }
-
-            const fetchedResourcesFromStylesheets = await getMultipleResourcesAsBase64(urlsFoundInCss);
-            for(let i=0; i<fetchedResourcesFromStylesheets.length; i++) {
-                const r = fetchedResourcesFromStylesheets[i];
-                cssStyles = cssStyles.replace(new RegExp(escapeRegExp(r.resourceUrl),"g"), r.resourceBase64);
-            }
+            let cssStyles = cssStylesFromStyleSheets;
 
             let urlsFoundInHtml = getImageUrlsFromFromHtml(contentHtml);
             const fetchedResources = await getMultipleResourcesAsBase64(urlsFoundInHtml);
@@ -295,6 +304,7 @@ const ImageRenderer = function(styleSheets) {
         });
     };
 
+    extractFromStyleSheetsPromise = extractStylesFromStyleSheets();
 };
 
 export { ImageRenderer }
