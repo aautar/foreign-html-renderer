@@ -273,7 +273,7 @@ const ImageRenderer = function(styleSheets) {
      * @param {Number} width
      * @param {Number} height
      * 
-     * @return {Promise<Image>}
+     * @return {Promise<HTMLCanvasElement>}
      */
     this.renderToCanvas = async function(html, width, height) {
         return new Promise(async function(resolve, reject) {
@@ -288,7 +288,25 @@ const ImageRenderer = function(styleSheets) {
 
             resolve(canvas);
         });
-    };    
+    };
+
+    /**
+     * @param {String} html
+     * @param {Number} width
+     * @param {Number} height
+     * @param {CanvasRenderingContext2D} canvasCtx
+     * @param {Number} drawAtX
+     * @param {Number} drawAtY
+     * 
+     * @return {Promise<CanvasRenderingContext2D>}
+     */
+     this.renderToExistingCanvasContext = async function(html, width, height, canvasCtx, drawAtX, drawAtY) {
+        return new Promise(async function(resolve, reject) {
+            const img = await self.renderToImage(html, width, height);
+            canvasCtx.drawImage(img, drawAtX, drawAtY, img.width, img.height);
+            resolve(canvasCtx);
+        });
+    };
 
     /**
      * @param {String} html
